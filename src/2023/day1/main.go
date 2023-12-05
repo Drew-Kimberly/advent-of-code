@@ -1,14 +1,21 @@
-package main
+package day1_2023
 
 import (
-	"bufio"
 	"fmt"
-	"os"
+	"path/filepath"
 	"strconv"
+
+	"github.com/Drew-Kimberly/advent-of-code/src/common/go/fs"
+	"github.com/Drew-Kimberly/advent-of-code/src/common/go/trie"
 )
 
-func main() {
-	inputLines, err := extractInputLines("input.txt")
+func Day1_2023() {
+	inputPath, err := filepath.Abs("./2023/day1/input.txt")
+	if err != nil {
+		panic(err)
+	}
+
+	inputLines, err := fs.ExtractInputLines(inputPath)
 	if err != nil {
 		panic(err)
 	}
@@ -27,36 +34,7 @@ func main() {
 	fmt.Println(fmt.Sprintf("Part 2 value: %d", totalSumPt2))
 }
 
-func extractInputLines(fileName string) ([]string, error) {
-	cwd, err := os.Getwd()
-	if err != nil {
-		return nil, err
-	}
-
-	inputfilePath := fmt.Sprintf("%s/%s", cwd, fileName)
-
-	inputFile, err := os.Open(inputfilePath)
-	if err != nil {
-		return nil, err
-	}
-
-	scanner := bufio.NewScanner(inputFile)
-	scanner.Split(bufio.ScanLines)
-
-	var inputLines []string
-	for scanner.Scan() {
-		inputLines = append(inputLines, scanner.Text())
-	}
-
-	err = inputFile.Close()
-	if err != nil {
-		return nil, err
-	}
-
-	return inputLines, nil
-}
-
-func parseNumericCharsFromInput(input string, words *Trie) []int {
+func parseNumericCharsFromInput(input string, words *trie.ITrie) []int {
 	var numericChars []int
 	i := 0
 
@@ -78,9 +56,9 @@ func parseNumericCharsFromInput(input string, words *Trie) []int {
 					currentWord += string(input[j])
 				}
 
-				if node := words.path(currentWord); node != nil {
-					if *&node.wordEnds == true {
-						numericChars = append(numericChars, *&node.val)
+				if node := words.Path(currentWord); node != nil {
+					if *&node.WordEnds == true {
+						numericChars = append(numericChars, *&node.Val)
 						j = len(input)
 						// Note - CANNOT set i=j since we'd miss cases like "4twone"
 					}
@@ -119,75 +97,18 @@ func calculateCalibrationValue(lineDigits []int) int {
 	return calibrationValue
 }
 
-func getDigitWordTrie() *Trie {
-	words := trie()
-	words.insert("zero", 0)
-	words.insert("one", 1)
-	words.insert("two", 2)
-	words.insert("three", 3)
-	words.insert("four", 4)
-	words.insert("five", 5)
-	words.insert("six", 6)
-	words.insert("seven", 7)
-	words.insert("eight", 8)
-	words.insert("nine", 9)
+func getDigitWordTrie() *trie.ITrie {
+	words := trie.Trie()
+	words.Insert("zero", 0)
+	words.Insert("one", 1)
+	words.Insert("two", 2)
+	words.Insert("three", 3)
+	words.Insert("four", 4)
+	words.Insert("five", 5)
+	words.Insert("six", 6)
+	words.Insert("seven", 7)
+	words.Insert("eight", 8)
+	words.Insert("nine", 9)
 
 	return words
-}
-
-// **********************************************
-// * START: Trie implementation
-// **********************************************
-
-type Node struct {
-	children map[string]*Node
-	val      int
-	wordEnds bool
-}
-
-type Trie struct {
-	root *Node
-}
-
-func trie() *Trie {
-	t := new(Trie)
-	t.root = new(Node)
-	return t
-}
-
-func (t *Trie) insert(word string, val int) {
-	current := t.root
-	for _, cRune := range word {
-		char := string(cRune)
-
-		if current.children == nil {
-			current.children = make(map[string]*Node)
-		}
-
-		if current.children[char] == nil {
-			current.children[char] = new(Node)
-		}
-		current = current.children[char]
-	}
-	current.wordEnds = true
-	current.val = val
-}
-
-func (t *Trie) path(partialWord string) *Node {
-	current := t.root
-	for i, cRune := range partialWord {
-		childIdx := string(cRune)
-
-		if i == 0 && current.children[childIdx] == nil {
-			return nil
-		}
-
-		if current.children[childIdx] == nil {
-			return current
-		}
-
-		current = current.children[childIdx]
-	}
-
-	return current
 }
