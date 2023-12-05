@@ -32,15 +32,19 @@ func Day2_2023() {
 
 	bagLimits := gameBagLimits()
 	games := linesToGames(inputLines)
-	sum := 0
+	sumPt1 := 0
+	sumPt2 := 0
 
 	for _, game := range games {
 		if gameWithinLimits(game, bagLimits) {
-			sum += game.Id
+			sumPt1 += game.Id
 		}
+
+		sumPt2 += calculateMinCubePower(game)
 	}
 
-	fmt.Println(fmt.Sprintf("Part 1 value: %d", sum))
+	fmt.Println(fmt.Sprintf("Part 1 value: %d", sumPt1))
+	fmt.Println(fmt.Sprintf("Part 2 value: %d", sumPt2))
 }
 
 func gameBagLimits() GameBag {
@@ -55,6 +59,10 @@ func gameWithinLimits(game *Game, limits GameBag) bool {
 	return game.MaxBag["red"] <= limits["red"] &&
 		game.MaxBag["blue"] <= limits["blue"] &&
 		game.MaxBag["green"] <= limits["green"]
+}
+
+func calculateMinCubePower(game *Game) int {
+	return game.MaxBag["red"] * game.MaxBag["blue"] * game.MaxBag["green"]
 }
 
 func linesToGames(lines []string) []*Game {
