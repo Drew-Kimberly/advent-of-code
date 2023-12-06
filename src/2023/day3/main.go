@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Drew-Kimberly/advent-of-code/src/common/go/convert"
 	"github.com/Drew-Kimberly/advent-of-code/src/common/go/fs"
 )
 
@@ -84,8 +85,8 @@ func (s *Schematic) PartNumbers() []*PartNumber {
 			if isIntChar(char) {
 				numStr += char
 			} else {
-				if len(numStr) > 0 && s.isPartNumber(mustBeInt(numStr), i, j-len(numStr)) {
-					partNumber := PartNumber{Row: i, ColStart: j - len(numStr), ColEnd: j - 1, Val: mustBeInt(numStr)}
+				if len(numStr) > 0 && s.isPartNumber(convert.MustBeInt(numStr), i, j-len(numStr)) {
+					partNumber := PartNumber{Row: i, ColStart: j - len(numStr), ColEnd: j - 1, Val: convert.MustBeInt(numStr)}
 					partNumbers = append(partNumbers, &partNumber)
 				}
 
@@ -95,8 +96,8 @@ func (s *Schematic) PartNumbers() []*PartNumber {
 			j++
 		}
 
-		if len(numStr) > 0 && s.isPartNumber(mustBeInt(numStr), i, j-len(numStr)) {
-			partNumber := PartNumber{Row: i, ColStart: j - len(numStr), ColEnd: j - 1, Val: mustBeInt(numStr)}
+		if len(numStr) > 0 && s.isPartNumber(convert.MustBeInt(numStr), i, j-len(numStr)) {
+			partNumber := PartNumber{Row: i, ColStart: j - len(numStr), ColEnd: j - 1, Val: convert.MustBeInt(numStr)}
 			partNumbers = append(partNumbers, &partNumber)
 		}
 
@@ -145,9 +146,9 @@ func (s *Schematic) Gears() []*Gear {
 		gearKeyArr := strings.Split(gearKey, "-")
 		gear := Gear{
 			Char: SchematicCharacter[string]{
-				Row:      mustBeInt(gearKeyArr[0]),
-				ColStart: mustBeInt(gearKeyArr[1]),
-				ColEnd:   mustBeInt(gearKeyArr[1]),
+				Row:      convert.MustBeInt(gearKeyArr[0]),
+				ColStart: convert.MustBeInt(gearKeyArr[1]),
+				ColEnd:   convert.MustBeInt(gearKeyArr[1]),
 			},
 			PartNumbers: []*PartNumber{},
 		}
@@ -233,12 +234,4 @@ func charInPartNumber(char *SchematicCharacter[string], partNumbers []*PartNumbe
 func isIntChar(char string) bool {
 	_, err := strconv.Atoi(char)
 	return err == nil
-}
-
-func mustBeInt(char string) int {
-	num, err := strconv.Atoi(char)
-	if err != nil {
-		panic(err)
-	}
-	return num
 }
