@@ -15,3 +15,14 @@ func Reduce[T any, R any](original []T, fn func(acc R, nextVal T, i int) R, init
 	}
 	return reduced
 }
+
+func Filter[T any](original []T, predicate func(val T, i int) bool) []T {
+	var filtered []T
+	for i, val := range original {
+		if predicate(val, i) {
+			filtered = append(filtered, val)
+		}
+	}
+
+	return filtered
+}
