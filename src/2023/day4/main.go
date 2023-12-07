@@ -60,12 +60,13 @@ func calculateTotalScratchCards(originalScratchCards []*ScratchCard) int {
 
 func parseScratchCards(inputLines []string) []*ScratchCard {
 	var scratchCards []*ScratchCard
+
 	for _, line := range inputLines {
 		prefixIdx := strings.Index(line, LINE_PREFIX)
 		splitInput := strings.Split(line[prefixIdx+1:], DELIMITER)
 		scratchCards = append(scratchCards, NewScratchCard(
-			list.Map[string, int](strings.Fields(splitInput[1]), convert.MustBeInt),
-			list.Map[string, int](strings.Fields(splitInput[0]), convert.MustBeInt),
+			list.Map[string, int](strings.Fields(splitInput[1]), mustBeInt),
+			list.Map[string, int](strings.Fields(splitInput[0]), mustBeInt),
 		))
 	}
 
@@ -89,4 +90,8 @@ func (c *ScratchCard) NumberOfWins() int {
 		}
 	}
 	return numWinning
+}
+
+func mustBeInt(val string, _ int) int {
+	return convert.MustBeInt(val)
 }
