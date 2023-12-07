@@ -12,7 +12,7 @@ import (
 )
 
 func Day5_2023() {
-	inputPath, err := filepath.Abs("./2023/day5/input.txt")
+	inputPath, err := filepath.Abs("./2023/day5/test.txt")
 	if err != nil {
 		panic(err)
 	}
