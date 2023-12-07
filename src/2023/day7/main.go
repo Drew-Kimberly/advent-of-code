@@ -18,7 +18,8 @@ const CARDS_PER_HAND = 5
 type CardValue int
 
 const (
-	Two CardValue = iota + 2
+	Joker CardValue = iota + 1
+	Two
 	Three
 	Four
 	Five
@@ -47,6 +48,7 @@ var CARD_VALUE_MAP = map[string]CardValue{
 	"Q": Queen,
 	"K": King,
 	"A": Ace,
+	"@": Joker,
 }
 
 type HandType int
@@ -66,9 +68,10 @@ type Card struct {
 }
 
 type CardHand struct {
-	Cards []*Card
-	Type  HandType
-	Bid   int
+	Cards     []*Card
+	Type      HandType
+	Bid       int
+	NumJokers int
 }
 
 func Day7_2023() {
@@ -82,7 +85,8 @@ func Day7_2023() {
 		panic(err)
 	}
 
-	fmt.Println(fmt.Sprintf("Part 1 value: %d", findTotalWinnings(parseCardHands(inputLines))))
+	fmt.Println(fmt.Sprintf("Part 1 value: %d", findTotalWinnings(parseCardHands(inputLines, false))))
+	fmt.Println(fmt.Sprintf("Part 2 value: %d", findTotalWinnings(parseCardHands(inputLines, true))))
 }
 
 func findTotalWinnings(hands []*CardHand) int {
@@ -107,39 +111,52 @@ func findTotalWinnings(hands []*CardHand) int {
 	}, 0)
 }
 
-func parseCardHands(inputLines []string) []*CardHand {
+func parseCardHands(inputLines []string, useJokers bool) []*CardHand {
 	return list.Map(inputLines, func(line string, _ int) *CardHand {
 		splitLine := strings.Fields(line)
+		numJokers := 0
 		cards := list.Map(strings.Split(splitLine[0], ""), func(val string, _ int) *Card {
+			if useJokers && val == "J" {
+				val = "@"
+				numJokers++
+			}
 			return &Card{Value: CARD_VALUE_MAP[val]}
 		})
 		bid := convert.MustBeInt(splitLine[1])
-		return NewCardHand(cards, bid)
+		return NewCardHand(cards, bid, numJokers)
 	})
 }
 
-func NewCardHand(cards []*Card, bid int) *CardHand {
-	handType, err := determineHandType(cards)
+func NewCardHand(cards []*Card, bid int, numJokers int) *CardHand {
+	handType, err := determineHandType(cards, numJokers)
 	if err != nil {
 		panic(err)
 	}
 
-	return &CardHand{Cards: cards, Bid: bid, Type: handType}
+	return &CardHand{Cards: cards, Bid: bid, Type: handType, NumJokers: numJokers}
 }
 
-func determineHandType(cards []*Card) (HandType, error) {
+func determineHandType(cards []*Card, numJokers int) (HandType, error) {
 	if len(cards) != CARDS_PER_HAND {
 		return 0, fmt.Errorf("each hand of cards must contain exactly %d cards. Got %d", CARDS_PER_HAND, len(cards))
 	}
 
-	var cardCounts [13]int
+	if numJokers == 5 {
+		return FiveOfKind, nil
+	}
+
+	var cardCounts [14]int
 	for _, card := range cards {
-		cardCounts[card.Value-Two]++
+		if card.Value != Joker {
+			cardCounts[card.Value-Two]++
+		}
 	}
 
 	cardsPresent := list.Filter(cardCounts[:], func(val int, _ int) bool {
 		return val > 0
 	})
+
+	applyJokerRule(cardsPresent, numJokers)
 
 	var handType HandType
 
@@ -168,4 +185,15 @@ func determineHandType(cards []*Card) (HandType, error) {
 	}
 
 	return handType, nil
+}
+
+func applyJokerRule(cardCounts []int, numJokers int) {
+	maxIdx := 0
+	for i, count := range cardCounts {
+		if count > cardCounts[maxIdx] {
+			maxIdx = i
+		}
+	}
+
+	cardCounts[maxIdx] += numJokers
 }
