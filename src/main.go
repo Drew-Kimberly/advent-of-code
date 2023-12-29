@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	day12023 "github.com/Drew-Kimberly/advent-of-code/src/2023/day1"
+	day172023 "github.com/Drew-Kimberly/advent-of-code/src/2023/day17"
 	day22023 "github.com/Drew-Kimberly/advent-of-code/src/2023/day2"
 	day32023 "github.com/Drew-Kimberly/advent-of-code/src/2023/day3"
 	day42023 "github.com/Drew-Kimberly/advent-of-code/src/2023/day4"
@@ -45,4 +46,8 @@ func main() {
 	fmt.Println("\n########### START Day 8 ###########")
 	day82023.Day8_2023()
 	fmt.Println("########### END Day 8   ###########")
+
+	fmt.Println("\n########### START Day 17 ###########")
+	day172023.Day17_2023()
+	fmt.Println("########### END Day 17   ###########")
 }
